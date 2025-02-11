@@ -32,10 +32,11 @@ public class ProductService {
         newProduct.setDescription(productData.description());
         newProduct.setOwnerId(productData.ownerId());
         newProduct.setPrice(productData.price());
+        newProduct.setCategory(productData.categoryId());
 
         productRepository.save(newProduct);
 
-        snsService.publish(new MessageDto(newProduct.getOwnerId()));
+        snsService.publish(new MessageDto(newProduct.toString()));
 
         return newProduct;
     }
@@ -54,7 +55,7 @@ public class ProductService {
 
         productRepository.save(product);
 
-        snsService.publish(new MessageDto(product.getOwnerId()));
+        snsService.publish(new MessageDto(product.toString()));
 
         return product;
     }

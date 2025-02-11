@@ -4,6 +4,8 @@ import com.rr.desafio_anota_ai.domain.category.Category;
 import com.rr.desafio_anota_ai.domain.category.CategoryDto;
 import com.rr.desafio_anota_ai.domain.category.exception.CategoryNotFoundException;
 import com.rr.desafio_anota_ai.repository.CategoryRepository;
+import com.rr.desafio_anota_ai.service.aws.AwsSnsService;
+import com.rr.desafio_anota_ai.service.aws.MessageDto;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,16 +15,21 @@ import java.util.Optional;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final AwsSnsService snsService;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, AwsSnsService snsService) {
         this.categoryRepository = categoryRepository;
+        this.snsService = snsService;
     }
 
     public Category insert(CategoryDto categoryDto) {
         Category category = new Category();
         category.setTitle(categoryDto.title());
         category.setDescription(categoryDto.description());
+
         category.setOwnerId(categoryDto.ownerId());
+        snsService.publish(new MessageDto(category.toString()));
+
         return categoryRepository.save(category);
     }
 
@@ -35,6 +42,7 @@ public class CategoryService {
         if(!categoryData.description().isEmpty()) category.setDescription(categoryData.description());
 
         categoryRepository.save(category);
+        snsService.publish(new MessageDto(category.toString()));
 
         return category;
     }
